@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <title>Controle de atividades</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="lib/css/estilos.css">
+  <link rel="stylesheet" href="lib/css/bootstrap.min.css">
+  <link rel="stylesheet" href="lib/css/font-awesome.min.css">
+  <link rel="stylesheet" href="lib/css/ngDatepicker.css">
+</head>
+<body ng-app="controleAtividades">
+
+  <!-- MONTA O LAYOUT -->
+  <div class="container" ng-controller="controleAtividadesCtrl">
+    <div class="col-lg-2 col-md-2 col-sm-2"></div>
+    <div class="col-lg-8 col-md-8 col-sm-8">
+      <div class="row">
+        <h3>Controle de atividades</h3>
+        <div class="col-lg-6 col-md-6 col-sm-6">
+          <form>
+            <div class="input-group">
+              <span class="input-group-addon">
+                <i class="glyphicon glyphicon-search"></i>
+              </span>
+              <input ng-model="buscaAtividadeData" 
+                     class="form-control" 
+                     type="text" 
+                     placeholder="Pesquise por data (DD/MM/AAAA)"
+              >
+            </div>
+          </form>
+        </div>
+        <!--
+        <div class="col-lg-4 col-md-4 col-sm-4">
+          <span class="iconTrash glyphicon glyphicon-trash" 
+                title="Para apagar uma tarefa, arraste para a lixeira"></span>
+          <small>Arraste a tarefa para a lixeira</small>
+        </div>
+        -->
+      </div>
+
+      <!-- LISTA AS ATIVIDADES -->
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+          <table class="table table-striped">
+            <tr>
+              <th></th>
+              <th>Título</th>
+              <th>Data de conclusão</th>
+              <th>Status</th>
+            </tr>
+            <tr ng-repeat="atividade in atividadesLista | orderBy: 'dataConclusao' | filter:{dataConclusao: buscaAtividadeData}"
+                ng-class="{'selecionado negrito' : atividade.selecionado}" >
+              <td><input ng-model="atividade.selecionado" type="checkbox" /></td>
+              <td>{{atividade.titulo}}</td>
+              <td>{{atividade.dataConclusao | date:'dd/MM/yyyy'}}</td>
+              <td>
+                <span ng-class="{'label label-success' : atividade.statusDesc.nome == 'Concluído',
+                                 'label label-warning' : atividade.statusDesc.nome == 'Em andamento',
+                                 'label label-primary' : atividade.statusDesc.nome == 'Stand-by',
+                                  'label label-danger' : atividade.statusDesc.nome == 'Não concluído'}">
+                                 {{atividade.statusDesc.nome}}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 text-center">
+          <div ng-hide="atividadesLista.length > 0" class="alert alert-danger">
+            Não há atividades cadastradas
+          </div>
+        </div>
+        <div class="col-lg-12 col-md-12 col-sm-12 text-right">
+        <hr class="divider" />
+            <button ng-click="delAtividade(atividadesLista)"
+                    ng-show = "atividadesLista.length > 0"
+                    type="button" 
+                    class="btn btn-danger">
+                    Remover atividades
+            </button>
+        </div>
+      </div>
+
+      <!-- ADICIONA ATIVIDADES -->
+      <div class="row">
+        <h3>Adicionar atividade</h3>
+        <form name="atividadeForm">
+          <div class="form-group col-lg-12 col-md-12 col-sm-12">
+            <label>Título</label>
+            <input ng-model="atividade.titulo"  
+                   ng-minlength="10" 
+                   ng-required="true"
+                   name="tituloAtividade" 
+                   type="text" 
+                   class="form-control" 
+                   placeholder="Crie um título para a atividade"
+            />
+          </div>
+
+          <div class="form-group col-lg-5 col-md-5 col-sm-5">
+
+            <label>Data de conclusão</label>
+            <div class="input-group date">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+              <ng-datepicker ng-model="atividade.dataConclusao" 
+                             view-format="DD/MM/YYYY"
+                             ng-required="true"
+                             name="dataAtividade"
+                             class="form-control"
+                             placeholder="Selecione a data (DD/MM/AAAA)">
+              </ng-datepicker>
+            </div> 
+          </div>
+
+          <div class="form-group col-lg-4 col-md-4 col-sm-4">
+            <label>Status</label>
+            <select ng-model="atividade.statusDesc"
+                    ng-options="status.nome for status in statusLista" 
+                    ng-required="true" 
+                    name="statusAtividade" 
+                    class="form-control"
+            >
+              <option value="">Qual o status da atividade?</option>
+            </select>
+          </div>
+          <div class="form-group col-lg-3 col-md-3 col-sm-3 text-right">
+            <button ng-click="addAtividade(atividade)"
+                    ng-disabled="atividadeForm.$invalid" 
+                    type="button" 
+                    class="btnAdicionar btn btn-primary">
+                    Adicionar atividade
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- MENSAGENS DE ERRO -->
+      <div ng-show="atividadeForm.tituloAtividade.$error.required && atividadeForm.tituloAtividade.$dirty" class="alert alert-danger">
+           Por favor, preencha o campo de título!
+      </div>
+      <div ng-show="atividadeForm.tituloAtividade.$error.minlength" class="alert alert-danger">
+           O título deve ter pelo menos 10 caracteres!
+      </div>
+      <div ng-show="atividadeForm.dataAtividade.$error.required && atividadeForm.dataAtividade.$dirty" class="alert alert-danger">
+           Por favor, preencha o campo de data!
+      </div>
+
+      <div ng-show="atividadeForm.statusAtividade.$error.required && atividadeForm.statusAtividade.$dirty" class="alert alert-danger">
+           Por favor, selecione o status da atividade!
+      </div>
+    </div>
+    <div class="col-lg-2 col-md-2 col-sm-2"></div>
+  </div>
+
+  <!-- CHAMADAS DE JAVASCRIPT -->
+  <script src="lib/js/angular.js"></script>
+  <script src="lib/js/toArrayFilter.js"></script>
+  <script src="lib/js/moment-with-locales.min.js"></script>
+  <script src="lib/js/ngDatepicker.min.js"></script>
+  <script src="lib/js/jquery.min.js"></script>
+  <script src="lib/js/bootstrap.min.js"></script>
+  <script src="app/controleAtividades.js"></script>
+
+</body>
+</html>

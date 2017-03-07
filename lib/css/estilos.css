@@ -1,0 +1,11 @@
+    .iconEditar, .iconTrash {cursor: pointer;}
+    .iconTrash {margin-top: 8px;}
+    .btnAdicionar {margin-top: 24px;}
+    .table {margin-top: 20px;}
+    .table tr td:nth-child(1) {width:5%;}
+    .table tr td:nth-child(2) {width:45%;}
+    .table tr td:nth-child(3) {width:30%;}
+    .table tr td:nth-child(4) {width:20%;}
+    .ng-datepicker-input {border:0; width: 100%}
+    .selecionado {color:#fff; background-color: #ff6600 !important;}
+    .negrito {font-weight: bold;}
